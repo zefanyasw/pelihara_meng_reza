@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MIMI & MOCHI — A Little Cozy Cat Life</title>
+  
+  <!-- Cozy Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+
+  <div id="game-app">
+    
+    <!-- ====================================================================
+         TOP HUD
+         ==================================================================== -->
+    <header id="top-hud">
+      <!-- Player Profile & Level -->
+      <div class="hud-group">
+        <div class="hud-pill">
+          <div class="player-avatar">🐱</div>
+          <div class="xp-container">
+            <span id="hud-level" style="font-size: 11px; font-weight: 800;">Lv. 1</span>
+            <div class="xp-bar-bg">
+              <div id="hud-xp-fill" class="xp-bar-fill" style="width: 20%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Currencies -->
+        <div class="hud-pill" title="Cat Coins">
+          <span style="font-size: 16px;">🪙</span>
+          <span id="hud-coins">350</span>
+        </div>
+
+        <div class="hud-pill" title="Affection Stars">
+          <span style="font-size: 16px;">💕</span>
+          <span id="hud-affection">30</span>
+        </div>
+      </div>
+
+      <!-- Current Room Title Badge -->
+      <div class="hud-group">
+        <div class="room-title-badge" id="hud-room-pill" title="Click to Switch Room">
+          <span>🏡</span>
+          <span id="hud-room-name">Cozy Living Room</span>
+          <span style="font-size: 11px; opacity: 0.6;">▼</span>
+        </div>
+      </div>
+
+      <!-- Environment Time of Day & Audio Controls -->
+      <div class="hud-group">
+        <div class="hud-pill hud-pill-clickable" id="hud-time-pill" title="Click to shift Time of Day">
+          <span id="hud-time-of-day">☀️ Afternoon</span>
+        </div>
+
+        <div class="hud-pill hud-pill-clickable" id="btn-toggle-music" title="Toggle Lo-Fi Music">
+          🎵
+        </div>
+
+        <div class="hud-pill hud-pill-clickable" id="btn-toggle-sfx" title="Toggle Cat SFX">
+          🔔
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         2.5D ROOM VIEWPORT & CANVAS
+         ==================================================================== -->
+    <main id="viewport-container">
+      <canvas id="room-canvas"></canvas>
+      <canvas id="particles-canvas"></canvas>
+      <div id="interaction-overlay">
+        <div id="custom-cursor" class="custom-cursor-pointer"></div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         QUICK ACTION TOOLBELT (RIGHT SIDE)
+         ==================================================================== -->
+    <aside id="quick-toolbelt">
+      <button class="tool-btn active" data-tool="hand">
+        <span>✋</span>
+        <span class="tool-tooltip">Pet / Inspect</span>
+      </button>
+
+      <button class="tool-btn" data-tool="feather">
+        <span>🪶</span>
+        <span class="tool-tooltip">Feather Wand</span>
+      </button>
+
+      <button class="tool-btn" data-tool="laser">
+        <span>🔴</span>
+        <span class="tool-tooltip">Laser Pointer</span>
+      </button>
+
+      <button class="tool-btn" data-tool="yarn">
+        <span>🧶</span>
+        <span class="tool-tooltip">Yarn Ball</span>
+      </button>
+
+      <button class="tool-btn" data-tool="feed">
+        <span>🥣</span>
+        <span class="tool-tooltip">Serve Food</span>
+      </button>
+
+      <button class="tool-btn" data-tool="brush">
+        <span>🧹</span>
+        <span class="tool-tooltip">Brush Fur</span>
+      </button>
+
+      <button class="tool-btn" data-tool="bath">
+        <span>🧽</span>
+        <span class="tool-tooltip">Bubble Bath</span>
+      </button>
+    </aside>
+
+    <!-- ====================================================================
+         BOTTOM NAVIGATION BAR
+         ==================================================================== -->
+    <nav id="bottom-nav">
+      <button class="nav-item active" data-nav="home">
+        <span class="nav-icon">🏡</span>
+        <span>Sanctuary</span>
+      </button>
+
+      <button class="nav-item" data-nav="my_cats">
+        <span class="nav-icon">🐱</span>
+        <span>My Cats</span>
+      </button>
+
+      <button class="nav-item" data-nav="adopt">
+        <span class="nav-icon">📦</span>
+        <span>Adopt</span>
+      </button>
+
+      <button class="nav-item" data-nav="catdex">
+        <span class="nav-icon">📖</span>
+        <span>Cat-Dex</span>
+      </button>
+
+      <button class="nav-item" data-nav="decorate">
+        <span class="nav-icon">🛋️</span>
+        <span>Decorate</span>
+      </button>
+
+      <button class="nav-item" data-nav="quests">
+        <span class="nav-icon">📋</span>
+        <span>Quests</span>
+      </button>
+
+      <button class="nav-item" data-nav="photo">
+        <span class="nav-icon">📸</span>
+        <span>Snapshot</span>
+      </button>
+
+      <button class="nav-item" data-nav="settings">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- ====================================================================
+         MODAL DIALOGS
+         ==================================================================== -->
+    
+    <!-- Cat Care Suite Modal -->
+    <div class="modal-backdrop" id="modal-cat-care">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">🐱</span>
+            <h2 class="modal-title">Feline Care Suite</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="care-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Adoption Center Modal -->
+    <div class="modal-backdrop" id="modal-adoption">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">📦</span>
+            <h2 class="modal-title">Cat Rescue & Adoption Sanctuary</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="adoption-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Cat-Dex Encyclopedia Modal -->
+    <div class="modal-backdrop" id="modal-catdex">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">📖</span>
+            <h2 class="modal-title">The Neko Log — Cat-Dex</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="catdex-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Room Decorating Modal -->
+    <div class="modal-backdrop" id="modal-decorate">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">🛋️</span>
+            <h2 class="modal-title">Sanctuary Decor Catalog</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="decorate-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Quests & Achievements Modal -->
+    <div class="modal-backdrop" id="modal-quests">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">📋</span>
+            <h2 class="modal-title">Daily Missions & Achievements</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="quests-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Polaroid Photo Studio Modal -->
+    <div class="modal-backdrop" id="modal-photo">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">📸</span>
+            <h2 class="modal-title">Polaroid Memory Studio</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="photo-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-backdrop" id="modal-settings">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-title-icon">⚙️</span>
+            <h2 class="modal-title">Sanctuary Settings</h2>
+          </div>
+          <button class="modal-close-btn" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body" id="settings-modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+  </div>
+
+  <!-- Game Bootstrap -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
